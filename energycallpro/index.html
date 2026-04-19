@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>EnergyCall Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0c0e12;
+  --surface: #13161c;
+  --surface2: #1a1e27;
+  --surface3: #222733;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --accent: #00e5a0;
+  --accent2: #00b87a;
+  --accent-dim: rgba(0,229,160,0.12);
+  --accent-dim2: rgba(0,229,160,0.06);
+  --text: #f0f2f5;
+  --text2: #8b919e;
+  --text3: #525866;
+  --danger: #ff5555;
+  --danger-dim: rgba(255,85,85,0.12);
+  --warn: #ffaa33;
+  --warn-dim: rgba(255,170,51,0.12);
+  --info: #4d9fff;
+  --info-dim: rgba(77,159,255,0.12);
+  --radius: 10px;
+  --radius-lg: 14px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ── HEADER ── */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  height: 58px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: -0.3px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo-dot {
+  width: 8px; height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--accent);
+}
+
+.header-stats {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.stat-pill {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--text2);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stat-pill strong { color: var(--accent); font-weight: 500; }
+
+/* ── LAYOUT ── */
+.app-body {
+  display: flex;
+  flex: 1;
+  height: calc(100vh - 58px);
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 300px;
+  min-width: 300px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-top {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-top label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.input-wrap {
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.input-wrap input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 9px 12px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.input-wrap input:focus { border-color: var(--accent); }
+.input-wrap input::placeholder { color: var(--text3); }
+
+.api-input {
+  font-family: 'DM Mono', monospace !important;
+  font-size: 11px !important;
+  letter-spacing: 0.5px;
+}
+
+.search-btn {
+  width: 100%;
+  background: var(--accent);
+  color: #0c0e12;
+  border: none;
+  border-radius: var(--radius);
+  padding: 10px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  margin-top: 4px;
+}
+
+.search-btn:hover { background: #00ffb3; }
+.search-btn:active { transform: scale(0.98); }
+.search-btn:disabled { background: var(--surface3); color: var(--text3); cursor: not-allowed; }
+
+/* progress */
+.progress-wrap {
+  height: 2px;
+  background: var(--surface3);
+  display: none;
+}
+.progress-bar {
+  height: 100%;
+  background: var(--accent);
+  width: 0%;
+  transition: width 0.3s;
+}
+
+/* sector filter */
+.sector-filters {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.filter-chip {
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.12s;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.filter-chip:hover { border-color: var(--accent); color: var(--accent); }
+.filter-chip.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+
+/* sector list */
+.sector-list {
+  overflow-y: auto;
+  flex: 1;
+}
+
+.sector-list::-webkit-scrollbar { width: 4px; }
+.sector-list::-webkit-scrollbar-track { background: transparent; }
+.sector-list::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 2px; }
+
+.sector-group { border-bottom: 1px solid var(--border); }
+
+.sector-header {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  cursor: pointer;
+  gap: 8px;
+  transition: background 0.12s;
+  user-select: none;
+}
+
+.sector-header:hover { background: var(--surface2); }
+
+.sector-icon {
+  width: 28px; height: 28px;
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.sector-title-wrap { flex: 1; min-width: 0; }
+.sector-title { font-size: 13px; font-weight: 500; }
+.sector-subtitle { font-size: 11px; color: var(--text3); margin-top: 1px; }
+
+.sector-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  background: var(--surface3);
+  color: var(--text2);
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
+.sector-badge.loaded { background: var(--accent-dim); color: var(--accent); }
+
+.chev {
+  font-size: 10px;
+  color: var(--text3);
+  transition: transform 0.15s;
+}
+.chev.open { transform: rotate(90deg); }
+
+.biz-list { display: none; }
+.biz-list.open { display: block; }
+
+.biz-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px 8px 52px;
+  cursor: pointer;
+  gap: 8px;
+  transition: background 0.1s;
+  border-top: 1px solid var(--border);
+}
+
+.biz-item:hover { background: var(--surface2); }
+.biz-item.active { background: var(--accent-dim2); border-left: 2px solid var(--accent); padding-left: 50px; }
+
+.biz-name { font-size: 12px; font-weight: 500; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.biz-addr { font-size: 10px; color: var(--text3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.open-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.open-dot.yes { background: var(--accent); }
+.open-dot.no { background: var(--danger); }
+.open-dot.unk { background: var(--text3); }
+
+/* ── MAIN PANEL ── */
+.main-panel {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-panel::-webkit-scrollbar { width: 4px; }
+.main-panel::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 2px; }
+
+/* empty / welcome state */
+.welcome {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+  gap: 12px;
+}
+
+.welcome-icon {
+  width: 64px; height: 64px;
+  border-radius: 18px;
+  background: var(--accent-dim);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.welcome h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.welcome p {
+  color: var(--text2);
+  font-size: 13px;
+  max-width: 340px;
+  line-height: 1.6;
+}
+
+.steps {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.step {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 18px;
+  font-size: 12px;
+  color: var(--text2);
+  text-align: left;
+  max-width: 160px;
+}
+
+.step-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 20px;
+  color: var(--accent);
+  font-weight: 500;
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* ── DETAIL VIEW ── */
+.detail-view {
+  padding: 28px;
+  display: none;
+}
+
+.detail-view.visible { display: block; }
+
+.detail-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.biz-avatar {
+  width: 56px; height: 56px;
+  border-radius: 14px;
+  background: var(--surface3);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--accent);
+  flex-shrink: 0;
+  border: 1px solid var(--border2);
+}
+
+.detail-title { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; line-height: 1.2; }
+.detail-meta { font-size: 12px; color: var(--text2); margin-top: 4px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+.status-badge {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+}
+.status-open { background: var(--accent-dim); color: var(--accent); }
+.status-closed { background: var(--danger-dim); color: var(--danger); }
+.status-unk { background: var(--surface3); color: var(--text2); }
+
+.detail-rating {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--warn);
+}
+
+/* info cards */
+.info-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.info-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+}
+
+.info-card-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text3);
+  margin-bottom: 6px;
+}
+
+.info-card-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  word-break: break-word;
+  line-height: 1.4;
+}
+
+.info-card-value a { color: var(--info); text-decoration: none; }
+.info-card-value a:hover { text-decoration: underline; }
+
+.phone-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 18px;
+  color: var(--accent) !important;
+  letter-spacing: 0.5px;
+}
+
+/* call button */
+.action-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.btn-call {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--accent);
+  color: #0c0e12;
+  border: none;
+  border-radius: var(--radius);
+  padding: 12px 24px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.btn-call:hover { background: #00ffb3; }
+.btn-call:active { transform: scale(0.97); }
+.btn-call:disabled { background: var(--surface3); color: var(--text3); cursor: not-allowed; }
+
+.btn-secondary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 11px 18px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.btn-secondary:hover { background: var(--surface3); }
+
+.btn-called {
+  background: var(--surface2);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 11px 18px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* call log */
+.call-log-section {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 12px;
+}
+
+.call-outcome-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.outcome-btn {
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.12s;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.outcome-btn:hover { background: var(--surface3); color: var(--text); }
+.outcome-btn.selected-interested { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+.outcome-btn.selected-callback { background: var(--warn-dim); border-color: var(--warn); color: var(--warn); }
+.outcome-btn.selected-noanswer { background: var(--surface3); border-color: var(--border2); color: var(--text2); }
+.outcome-btn.selected-notinterested { background: var(--danger-dim); border-color: var(--danger); color: var(--danger); }
+.outcome-btn.selected-donotcall { background: var(--danger-dim); border-color: var(--danger); color: var(--danger); }
+
+.notes-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 9px 12px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  outline: none;
+  resize: vertical;
+  min-height: 68px;
+  margin-top: 10px;
+  transition: border-color 0.15s;
+}
+.notes-input:focus { border-color: var(--accent); }
+.notes-input::placeholder { color: var(--text3); }
+
+.save-note-btn {
+  margin-top: 8px;
+  background: var(--surface3);
+  color: var(--text);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 7px 14px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: background 0.12s;
+}
+.save-note-btn:hover { background: var(--accent-dim); color: var(--accent); border-color: var(--accent); }
+
+/* hours table */
+.hours-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 16px;
+  font-size: 12px;
+}
+
+.hours-day { color: var(--text3); }
+.hours-time { color: var(--text); font-family: 'DM Mono', monospace; font-size: 11px; }
+
+/* ── RIGHT PANEL — call log ── */
+.log-panel {
+  width: 260px;
+  min-width: 260px;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.log-panel-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.log-panel-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.clear-log-btn {
+  font-size: 11px;
+  color: var(--text3);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+}
+.clear-log-btn:hover { color: var(--danger); }
+
+.log-list {
+  overflow-y: auto;
+  flex: 1;
+  padding: 8px;
+}
+
+.log-list::-webkit-scrollbar { width: 3px; }
+.log-list::-webkit-scrollbar-thumb { background: var(--surface3); }
+
+.log-entry {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.log-entry:hover { background: var(--surface3); }
+
+.log-biz-name { font-size: 12px; font-weight: 500; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.log-outcome { font-size: 11px; }
+.log-outcome.interested { color: var(--accent); }
+.log-outcome.callback { color: var(--warn); }
+.log-outcome.noanswer { color: var(--text3); }
+.log-outcome.notinterested { color: var(--danger); }
+.log-outcome.donotcall { color: var(--danger); }
+.log-time { font-size: 10px; color: var(--text3); font-family: 'DM Mono', monospace; margin-top: 3px; }
+.log-note { font-size: 11px; color: var(--text2); margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.log-empty {
+  padding: 24px 12px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text3);
+}
+
+/* export bar */
+.export-bar {
+  padding: 10px 12px;
+  border-top: 1px solid var(--border);
+}
+
+.export-btn {
+  width: 100%;
+  background: var(--surface2);
+  color: var(--text2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.12s;
+}
+.export-btn:hover { background: var(--accent-dim); color: var(--accent); border-color: var(--accent); }
+
+/* loading spinner in detail */
+.loading-detail {
+  padding: 60px 28px;
+  text-align: center;
+  color: var(--text2);
+  font-size: 13px;
+  display: none;
+}
+
+.spinner {
+  width: 28px; height: 28px;
+  border: 2px solid var(--surface3);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin: 0 auto 12px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* no phone */
+.no-phone { color: var(--text3) !important; font-size: 13px !important; }
+
+/* scrollbar search */
+.search-filter-wrap {
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.search-filter-wrap input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 7px 10px;
+  color: var(--text);
+  font-size: 12px;
+  outline: none;
+  transition: border-color 0.15s;
+  font-family: 'DM Sans', sans-serif;
+}
+.search-filter-wrap input:focus { border-color: var(--accent); }
+.search-filter-wrap input::placeholder { color: var(--text3); }
+
+/* toast */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 10px 18px;
+  font-size: 13px;
+  color: var(--text);
+  transition: transform 0.25s;
+  z-index: 999;
+  pointer-events: none;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    EnergyCall Pro
+  </div>
+  <div class="header-stats">
+    <div class="stat-pill">Businesses found: <strong id="hdr-total">0</strong></div>
+    <div class="stat-pill">Called today: <strong id="hdr-called">0</strong></div>
+    <div class="stat-pill">Interested: <strong id="hdr-interested">0</strong></div>
+  </div>
+</header>
+
+<div class="app-body">
+
+  <!-- LEFT SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-top">
+      <label>Google Places API Key</label>
+      <div class="input-wrap">
+        <input class="api-input" type="password" id="apikey" placeholder="AIza..." />
+      </div>
+      <label>Location / Postcode</label>
+      <div class="input-wrap">
+        <input type="text" id="location" placeholder="e.g. Burnley or BB11 1AA" />
+      </div>
+      <button class="search-btn" id="searchBtn" onclick="startSearch()">Search Area</button>
+    </div>
+
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <div class="search-filter-wrap">
+      <input type="text" id="bizFilter" placeholder="Filter businesses..." oninput="filterBizList()" />
+    </div>
+
+    <div class="sector-list" id="sectorList">
+      <div style="padding:32px 16px;text-align:center;color:var(--text3);font-size:12px;">
+        Enter your API key and a location above, then hit Search Area.
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN DETAIL PANEL -->
+  <div class="main-panel" id="mainPanel">
+
+    <div class="welcome" id="welcomeView">
+      <div class="welcome-icon">⚡</div>
+      <h2>EnergyCall Pro</h2>
+      <p>Your complete energy comparison calling tool. Search any UK area to pull every business, organised by sector, ready to call.</p>
+      <div class="steps">
+        <div class="step"><span class="step-num">01</span>Paste your Google Places API key</div>
+        <div class="step"><span class="step-num">02</span>Enter a town or postcode</div>
+        <div class="step"><span class="step-num">03</span>Click a business to see their details</div>
+        <div class="step"><span class="step-num">04</span>Call, log the outcome, move on</div>
+      </div>
+    </div>
+
+    <div class="loading-detail" id="loadingDetail">
+      <div class="spinner"></div>
+      Loading business details...
+    </div>
+
+    <div class="detail-view" id="detailView"></div>
+  </div>
+
+  <!-- RIGHT LOG PANEL -->
+  <div class="log-panel">
+    <div class="log-panel-header">
+      <span class="log-panel-title">Call Log</span>
+      <button class="clear-log-btn" onclick="clearLog()">Clear</button>
+    </div>
+    <div class="log-list" id="logList">
+      <div class="log-empty">No calls logged yet.</div>
+    </div>
+    <div class="export-bar">
+      <button class="export-btn" onclick="exportCSV()">Export log as CSV</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SECTORS = [
+  {name:"Retail", icon:"🛍", tag:"B2C", types:["supermarket","convenience_store","clothing_store","hardware_store","pharmacy","book_store","pet_store","electronics_store","furniture_store","florist","shoe_store","department_store","liquor_store"]},
+  {name:"Hospitality & Food", icon:"🍽", tag:"B2C", types:["restaurant","cafe","bar","bakery","meal_takeaway","night_club","lodging","hotel"]},
+  {name:"Healthcare & Social Care", icon:"🏥", tag:"Services", types:["doctor","dentist","pharmacy","veterinary_care","hospital","physiotherapist","spa"]},
+  {name:"Automotive", icon:"🚗", tag:"B2C", types:["car_dealer","car_repair","car_wash","gas_station","car_rental"]},
+  {name:"Leisure & Entertainment", icon:"🎯", tag:"B2C", types:["gym","movie_theater","bowling_alley","amusement_park","golf_course","museum","art_gallery","casino"]},
+  {name:"Education & Training", icon:"🎓", tag:"Public", types:["school","university","library","driving_school"]},
+  {name:"Construction & Trades", icon:"🔧", tag:"Industrial", types:["plumber","electrician","roofing_contractor","general_contractor","locksmith","moving_company","painter"]},
+  {name:"Hair, Beauty & Wellness", icon:"💇", tag:"B2C", types:["hair_care","beauty_salon","nail_salon","tattoo_parlor"]},
+  {name:"Financial Services", icon:"🏦", tag:"B2B", types:["bank","insurance_agency","finance","accounting"]},
+  {name:"Professional Services", icon:"💼", tag:"B2B", types:["lawyer","real_estate_agency","travel_agency","accounting"]},
+  {name:"Logistics & Transport", icon:"🚚", tag:"Industrial", types:["taxi_stand","transit_station","bus_station","storage","moving_company"]},
+  {name:"Charity & Community", icon:"🤝", tag:"Non-profit", types:["place_of_worship","library","fire_station","post_office"]},
+];
+
+let allData = {};
+let callLog = JSON.parse(localStorage.getItem('ecp_calllog') || '[]');
+let currentBiz = null;
+let openSectors = new Set();
+
+function saveLog() {
+  localStorage.setItem('ecp_calllog', JSON.stringify(callLog));
+  renderLog();
+  updateHeaderStats();
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+function setProgress(p) {
+  const w = document.getElementById('progressWrap');
+  const b = document.getElementById('progressBar');
+  if (p === 0) { w.style.display = 'none'; b.style.width = '0%'; return; }
+  w.style.display = 'block';
+  b.style.width = p + '%';
+}
+
+async function geocode(loc, key) {
+  const r = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(loc + ', UK')}&key=${key}`);
+  const d = await r.json();
+  if (!d.results || !d.results.length) return null;
+  const g = d.results[0].geometry.location;
+  return { lat: g.lat, lng: g.lng, name: d.results[0].formatted_address };
+}
+
+async function nearbySearch(lat, lng, type, key) {
+  const r = await fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=3000&type=${type}&key=${key}`);
+  const d = await r.json();
+  return d.results || [];
+}
+
+async function getDetails(placeId, key) {
+  const fields = 'name,formatted_phone_number,formatted_address,website,opening_hours,rating,business_status,types';
+  const r = await fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=${fields}&key=${key}`);
+  const d = await r.json();
+  return d.result || {};
+}
+
+async function startSearch() {
+  const key = document.getElementById('apikey').value.trim();
+  const loc = document.getElementById('location').value.trim();
+  if (!key) { toast('Please enter your Google Places API key.'); return; }
+  if (!loc) { toast('Please enter a location or postcode.'); return; }
+
+  document.getElementById('searchBtn').disabled = true;
+  document.getElementById('sectorList').innerHTML = '<div style="padding:24px 16px;text-align:center;color:var(--text3);font-size:12px;">Searching...</div>';
+  document.getElementById('detailView').classList.remove('visible');
+  document.getElementById('welcomeView').style.display = 'flex';
+  allData = {};
+  openSectors = new Set();
+  setProgress(5);
+
+  try {
+    const geo = await geocode(loc, key);
+    if (!geo) { toast('Location not found. Try a full postcode or town name.'); document.getElementById('searchBtn').disabled = false; setProgress(0); return; }
+
+    const { lat, lng } = geo;
+    let done = 0;
+    const total = SECTORS.length;
+
+    await Promise.all(SECTORS.map(async (sector) => {
+      const seen = new Set();
+      const businesses = [];
+      for (const type of sector.types.slice(0, 3)) {
+        try {
+          const res = await nearbySearch(lat, lng, type, key);
+          for (const p of res) {
+            if (!seen.has(p.place_id)) {
+              seen.add(p.place_id);
+              businesses.push({
+                place_id: p.place_id,
+                name: p.name,
+                vicinity: p.vicinity || '',
+                open_now: p.opening_hours?.open_now,
+                sector: sector.name,
+                rating: p.rating,
+                _details: null,
+              });
+            }
+          }
+        } catch(e) {}
+      }
+      allData[sector.name] = businesses;
+      done++;
+      setProgress(5 + Math.round((done / total) * 90));
+    }));
+
+    setProgress(100);
+    setTimeout(() => setProgress(0), 400);
+    renderSectorList();
+    updateHeaderStats();
+  } catch(e) {
+    toast('Error: ' + e.message);
+  }
+  document.getElementById('searchBtn').disabled = false;
+}
+
+function renderSectorList() {
+  const q = (document.getElementById('bizFilter').value || '').toLowerCase();
+  const container = document.getElementById('sectorList');
+  container.innerHTML = '';
+  let grandTotal = 0;
+
+  SECTORS.forEach(sector => {
+    let businesses = (allData[sector.name] || []);
+    if (q) businesses = businesses.filter(b => b.name.toLowerCase().includes(q) || b.vicinity.toLowerCase().includes(q));
+    grandTotal += businesses.length;
+
+    const group = document.createElement('div');
+    group.className = 'sector-group';
+
+    const isOpen = openSectors.has(sector.name);
+    const loaded = businesses.length > 0;
+
+    group.innerHTML = `<div class="sector-header" onclick="toggleSector('${sector.name}',this)">
+      <div class="sector-icon" style="background:var(--surface3)">${sector.icon}</div>
+      <div class="sector-title-wrap">
+        <div class="sector-title">${sector.name}</div>
+        <div class="sector-subtitle">${sector.tag}</div>
+      </div>
+      <span class="sector-badge${loaded ? ' loaded' : ''}">${businesses.length}</span>
+      <span class="chev${isOpen ? ' open' : ''}">&#9654;</span>
+    </div>
+    <div class="biz-list${isOpen ? ' open' : ''}" id="blist-${sector.name.replace(/\W/g,'_')}"></div>`;
+
+    const blist = group.querySelector('.biz-list');
+    businesses.forEach(b => {
+      const dotClass = b.open_now == null ? 'unk' : b.open_now ? 'yes' : 'no';
+      const item = document.createElement('div');
+      item.className = 'biz-item' + (currentBiz && currentBiz.place_id === b.place_id ? ' active' : '');
+      item.dataset.placeId = b.place_id;
+      item.innerHTML = `<div class="open-dot ${dotClass}"></div>
+        <div style="min-width:0;flex:1">
+          <div class="biz-name">${b.name}</div>
+          <div class="biz-addr">${b.vicinity.split(',').slice(0,2).join(',')}</div>
+        </div>`;
+      item.onclick = () => openBiz(b);
+      blist.appendChild(item);
+    });
+
+    container.appendChild(group);
+  });
+
+  document.getElementById('hdr-total').textContent = grandTotal;
+}
+
+function filterBizList() { renderSectorList(); }
+
+function toggleSector(name, hdr) {
+  const id = 'blist-' + name.replace(/\W/g,'_');
+  const list = document.getElementById(id);
+  const chev = hdr.querySelector('.chev');
+  const open = list.classList.toggle('open');
+  chev.classList.toggle('open', open);
+  if (open) openSectors.add(name); else openSectors.delete(name);
+}
+
+async function openBiz(biz) {
+  currentBiz = biz;
+  document.getElementById('welcomeView').style.display = 'none';
+  document.getElementById('detailView').classList.remove('visible');
+  document.getElementById('loadingDetail').style.display = 'block';
+
+  document.querySelectorAll('.biz-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.placeId === biz.place_id);
+  });
+
+  const key = document.getElementById('apikey').value.trim();
+  let d = biz._details;
+  if (!d) {
+    try { d = await getDetails(biz.place_id, key); biz._details = d; } catch(e) { d = {}; }
+  }
+
+  document.getElementById('loadingDetail').style.display = 'none';
+  renderDetail(biz, d);
+}
+
+function renderDetail(biz, d) {
+  const phone = d.formatted_phone_number || null;
+  const addr = d.formatted_address || biz.vicinity || 'Not listed';
+  const website = d.website || null;
+  const openNow = d.opening_hours?.open_now;
+  const hours = d.opening_hours?.weekday_text || [];
+  const rating = d.rating || biz.rating;
+
+  const statusClass = openNow == null ? 'status-unk' : openNow ? 'status-open' : 'status-closed';
+  const statusLabel = openNow == null ? 'Status unknown' : openNow ? 'Open now' : 'Closed';
+
+  const initials = biz.name.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase();
+
+  const logEntry = callLog.find(e => e.place_id === biz.place_id);
+
+  const view = document.getElementById('detailView');
+  view.innerHTML = `
+    <div class="detail-top">
+      <div class="biz-avatar">${initials}</div>
+      <div>
+        <div class="detail-title">${biz.name}</div>
+        <div class="detail-meta">
+          <span>${biz.sector}</span>
+          <span class="status-badge ${statusClass}">${statusLabel}</span>
+          ${rating ? `<span class="detail-rating">★ ${rating.toFixed(1)}</span>` : ''}
+        </div>
+      </div>
+    </div>
+
+    <div class="info-cards">
+      <div class="info-card">
+        <div class="info-card-label">Phone number</div>
+        <div class="info-card-value ${phone ? 'phone-val' : 'no-phone'}">${phone || 'Not listed'}</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Address</div>
+        <div class="info-card-value" style="font-size:12px">${addr}</div>
+      </div>
+      <div class="info-card" style="grid-column:1/-1">
+        <div class="info-card-label">Website</div>
+        <div class="info-card-value">${website ? `<a href="${website}" target="_blank">${website.replace(/^https?:\/\//,'').split('/')[0]}</a>` : 'Not listed'}</div>
+      </div>
+    </div>
+
+    <div class="action-row">
+      <button class="btn-call" ${!phone ? 'disabled' : ''} onclick="callNow('${phone || ''}','${biz.name.replace(/'/g,'\\'')}')">
+        &#9742; ${phone ? 'Call ' + phone : 'No number listed'}
+      </button>
+      ${website ? `<button class="btn-secondary" onclick="openLink('${website}')">&#127760; Website</button>` : ''}
+      <button class="btn-secondary" onclick="openMaps('${addr}')">&#128506; Maps</button>
+    </div>
+
+    <div class="call-log-section">
+      <div class="section-title">Call outcome</div>
+      <div class="call-outcome-row">
+        ${['Interested','Callback','No answer','Not interested','Do not call'].map(o => {
+          const key = o.toLowerCase().replace(/\s/g,'');
+          const selected = logEntry && logEntry.outcome === key ? ' selected-' + key : '';
+          return `<button class="outcome-btn${selected}" onclick="setOutcome('${key}','${biz.place_id}','${biz.name.replace(/'/g,'\\'')}','${biz.sector}')">${o}</button>`;
+        }).join('')}
+      </div>
+      <textarea class="notes-input" id="noteInput" placeholder="Add call notes here...">${logEntry ? logEntry.note || '' : ''}</textarea>
+      <button class="save-note-btn" onclick="saveNote('${biz.place_id}')">Save note</button>
+    </div>
+
+    ${hours.length > 0 ? `
+    <div class="call-log-section">
+      <div class="section-title">Opening hours</div>
+      <div class="hours-grid">
+        ${hours.map(h => {
+          const [day, ...rest] = h.split(': ');
+          return `<div class="hours-day">${day}</div><div class="hours-time">${rest.join(': ') || '—'}</div>`;
+        }).join('')}
+      </div>
+    </div>` : ''}
+  `;
+
+  view.classList.add('visible');
+}
+
+function callNow(phone, name) {
+  if (!phone) return;
+  window.location = 'tel:' + phone.replace(/\s/g,'');
+  toast('Calling ' + name + '...');
+}
+
+function openMaps(addr) {
+  openLink('https://maps.google.com/?q=' + encodeURIComponent(addr));
+}
+
+function setOutcome(outcome, placeId, name, sector) {
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'}) + ' ' + now.toLocaleDateString('en-GB');
+  const existing = callLog.findIndex(e => e.place_id === placeId);
+  const entry = { place_id: placeId, name, sector, outcome, time: timeStr, note: existing >= 0 ? callLog[existing].note : '' };
+  if (existing >= 0) callLog[existing] = entry; else callLog.unshift(entry);
+  saveLog();
+  if (currentBiz && currentBiz.place_id === placeId) renderDetail(currentBiz, currentBiz._details || {});
+  toast('Outcome saved: ' + outcome);
+}
+
+function saveNote(placeId) {
+  const note = document.getElementById('noteInput')?.value || '';
+  const existing = callLog.findIndex(e => e.place_id === placeId);
+  if (existing >= 0) { callLog[existing].note = note; saveLog(); toast('Note saved.'); }
+  else { toast('Set an outcome first before saving a note.'); }
+}
+
+function renderLog() {
+  const container = document.getElementById('logList');
+  if (!callLog.length) { container.innerHTML = '<div class="log-empty">No calls logged yet.</div>'; return; }
+  container.innerHTML = callLog.map((e,i) => `
+    <div class="log-entry" onclick="jumpToLog('${e.place_id}')">
+      <div class="log-biz-name">${e.name}</div>
+      <div class="log-outcome ${e.outcome}">${e.outcome.charAt(0).toUpperCase()+e.outcome.slice(1)}</div>
+      ${e.note ? `<div class="log-note">${e.note}</div>` : ''}
+      <div class="log-time">${e.time}</div>
+    </div>`).join('');
+}
+
+function jumpToLog(placeId) {
+  for (const sector of SECTORS) {
+    const biz = (allData[sector.name] || []).find(b => b.place_id === placeId);
+    if (biz) { openBiz(biz); return; }
+  }
+  toast('Search this area first to jump to that business.');
+}
+
+function updateHeaderStats() {
+  let total = 0;
+  SECTORS.forEach(s => { total += (allData[s.name] || []).length; });
+  document.getElementById('hdr-total').textContent = total;
+  document.getElementById('hdr-called').textContent = callLog.length;
+  document.getElementById('hdr-interested').textContent = callLog.filter(e => e.outcome === 'interested').length;
+}
+
+function clearLog() {
+  if (!confirm('Clear all logged calls?')) return;
+  callLog = [];
+  saveLog();
+  toast('Call log cleared.');
+}
+
+function exportCSV() {
+  if (!callLog.length) { toast('No calls to export yet.'); return; }
+  const rows = [['Business','Sector','Outcome','Time','Notes']];
+  callLog.forEach(e => rows.push([e.name, e.sector, e.outcome, e.time, (e.note||'').replace(/,/g,';')]));
+  const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'energycall_log_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  toast('Exported as CSV!');
+}
+
+document.getElementById('location').addEventListener('keydown', e => { if (e.key === 'Enter') startSearch(); });
+renderLog();
+updateHeaderStats();
+</script>
+</body>
+</html>
