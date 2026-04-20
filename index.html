@@ -714,6 +714,136 @@ header {
 /* no phone */
 .no-phone { color: var(--text3) !important; font-size: 13px !important; }
 
+/* ── LOGIN SCREEN ── */
+.login-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  flex-direction: column;
+  gap: 0;
+}
+
+.login-box {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  padding: 40px 36px;
+  width: 100%;
+  max-width: 380px;
+}
+
+.login-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.login-logo-dot {
+  width: 10px; height: 10px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 12px var(--accent);
+}
+
+.login-logo-text {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: -0.3px;
+}
+
+.login-tagline {
+  font-size: 13px;
+  color: var(--text2);
+  margin-bottom: 28px;
+  line-height: 1.5;
+}
+
+.login-field {
+  margin-bottom: 14px;
+}
+
+.login-field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 6px;
+}
+
+.login-field input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 11px 14px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.login-field input:focus { border-color: var(--accent); }
+.login-field input::placeholder { color: var(--text3); }
+
+.login-btn {
+  width: 100%;
+  background: var(--accent);
+  color: #0c0e12;
+  border: none;
+  border-radius: var(--radius);
+  padding: 12px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.login-btn:hover { background: #00ffb3; }
+.login-btn:active { transform: scale(0.98); }
+
+.login-error {
+  background: var(--danger-dim);
+  border: 1px solid var(--danger);
+  border-radius: var(--radius);
+  padding: 9px 12px;
+  font-size: 13px;
+  color: var(--danger);
+  margin-top: 12px;
+  display: none;
+  text-align: center;
+}
+
+.login-error.visible { display: block; }
+
+.login-footer {
+  font-size: 11px;
+  color: var(--text3);
+  text-align: center;
+  margin-top: 20px;
+}
+
+.logout-btn {
+  font-size: 12px;
+  color: var(--text3);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  padding: 0;
+}
+.logout-btn:hover { color: var(--danger); }
+
 /* scrollbar search */
 .search-filter-wrap {
   padding: 8px 16px;
@@ -755,15 +885,38 @@ header {
 </head>
 <body>
 
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-dot"></div>
+      <div class="login-logo-text">EnergyCall Pro</div>
+    </div>
+    <p class="login-tagline">Sign in to access your energy comparison calling tool.</p>
+    <div class="login-field">
+      <label>Username</label>
+      <input type="text" id="loginUser" placeholder="Enter your username" autocomplete="username" />
+    </div>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="Enter your password" autocomplete="current-password" />
+    </div>
+    <button class="login-btn" onclick="attemptLogin()">Sign in</button>
+    <div class="login-error" id="loginError">Incorrect username or password. Please try again.</div>
+    <p class="login-footer">EnergyCall Pro &mdash; Private access only</p>
+  </div>
+</div>
+
 <header>
   <div class="logo">
     <div class="logo-dot"></div>
     EnergyCall Pro
   </div>
-  <div class="header-stats">
+    <div class="header-stats">
     <div class="stat-pill">Businesses found: <strong id="hdr-total">0</strong></div>
     <div class="stat-pill">Called today: <strong id="hdr-called">0</strong></div>
     <div class="stat-pill">Interested: <strong id="hdr-interested">0</strong></div>
+    <button class="logout-btn" onclick="logout()">Sign out</button>
   </div>
 </header>
 
@@ -840,6 +993,48 @@ header {
 <div class="toast" id="toast"></div>
 
 <script>
+const CREDENTIALS = { username: 'mrhaych', password: 'EnergyPro2026!' };
+const SESSION_KEY = 'ecp_auth';
+
+function checkAuth() {
+  const authed = sessionStorage.getItem(SESSION_KEY);
+  if (authed === 'true') {
+    document.getElementById('loginScreen').style.display = 'none';
+  }
+}
+
+function attemptLogin() {
+  const user = document.getElementById('loginUser').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  const err = document.getElementById('loginError');
+  if (user === CREDENTIALS.username && pass === CREDENTIALS.password) {
+    sessionStorage.setItem(SESSION_KEY, 'true');
+    document.getElementById('loginScreen').style.display = 'none';
+    err.classList.remove('visible');
+    toast('Welcome back, ' + user + '!');
+  } else {
+    err.classList.add('visible');
+    document.getElementById('loginPass').value = '';
+    document.getElementById('loginPass').focus();
+  }
+}
+
+function logout() {
+  sessionStorage.removeItem(SESSION_KEY);
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginError').classList.remove('visible');
+}
+
+document.addEventListener('keydown', e => {
+  if (document.getElementById('loginScreen').style.display !== 'none') {
+    if (e.key === 'Enter') attemptLogin();
+  }
+});
+
+checkAuth();
+
 const SECTORS = [
   {name:"Retail", icon:"🛍", tag:"B2C", types:["supermarket","convenience_store","clothing_store","hardware_store","pharmacy","book_store","pet_store","electronics_store","furniture_store","florist","shoe_store","department_store","liquor_store"]},
   {name:"Hospitality & Food", icon:"🍽", tag:"B2C", types:["restaurant","cafe","bar","bakery","meal_takeaway","night_club","lodging","hotel"]},
