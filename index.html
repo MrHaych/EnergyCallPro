@@ -29,14 +29,22 @@
   --info-dim: rgba(77,159,255,0.12);
   --radius: 10px;
   --radius-lg: 14px;
+  --shadow-sm: 0 1px 0 rgba(255,255,255,0.04) inset, 0 8px 24px rgba(0,0,0,0.35);
+  --header-h: 60px;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+html {
+  height: 100%;
+}
+
 body {
   font-family: 'DM Sans', sans-serif;
   background: var(--bg);
+  background-image: radial-gradient(ellipse 120% 80% at 50% -40%, rgba(0,229,160,0.06), transparent 55%);
   color: var(--text);
+  min-height: 100%;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -44,18 +52,33 @@ body {
   line-height: 1.5;
 }
 
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+button:focus:not(:focus-visible) { outline: none; }
+
 /* ── HEADER ── */
 header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 28px;
-  height: 58px;
+  padding: 0 24px 0 28px;
+  height: var(--header-h);
   background: var(--surface);
   border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
   position: sticky;
   top: 0;
   z-index: 100;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
 }
 
 .logo {
@@ -65,44 +88,82 @@ header {
   letter-spacing: -0.3px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  flex-shrink: 0;
 }
 
 .logo-dot {
   width: 8px; height: 8px;
   background: var(--accent);
   border-radius: 50%;
-  box-shadow: 0 0 10px var(--accent);
+  box-shadow: 0 0 12px var(--accent);
+  flex-shrink: 0;
+  animation: logo-pulse 2s ease-in-out infinite;
+}
+
+@keyframes logo-pulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 8px rgba(0,229,160,0.9), 0 0 18px rgba(0,229,160,0.5);
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    box-shadow: 0 0 4px rgba(0,229,160,0.3), 0 0 6px rgba(0,229,160,0.1);
+    transform: scale(0.78);
+  }
+}
+
+.header-tagline {
+  font-size: 12px;
+  color: var(--text3);
+  font-weight: 400;
+  padding-left: 16px;
+  border-left: 1px solid var(--border);
+  line-height: 1.35;
+  display: none;
+}
+
+@media (min-width: 720px) {
+  .header-tagline { display: block; }
 }
 
 .header-stats {
   display: flex;
-  gap: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
   align-items: center;
+  justify-content: flex-end;
 }
 
 .stat-pill {
   font-family: 'DM Mono', monospace;
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text2);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 7px 14px;
+  white-space: nowrap;
 }
 
-.stat-pill strong { color: var(--accent); font-weight: 500; }
+.stat-pill strong { color: var(--accent); font-weight: 500; font-size: 12px; }
 
 /* ── LAYOUT ── */
 .app-body {
   display: flex;
   flex: 1;
-  height: calc(100vh - 58px);
+  height: calc(100vh - var(--header-h));
+  min-height: 0;
 }
 
 /* ── SIDEBAR ── */
 .sidebar {
-  width: 300px;
-  min-width: 300px;
+  width: 308px;
+  min-width: 280px;
   background: var(--surface);
   border-right: 1px solid var(--border);
   display: flex;
@@ -110,24 +171,43 @@ header {
   overflow: hidden;
 }
 
+.sidebar-section-label {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text3);
+  padding: 14px 16px 10px;
+  margin: 0;
+}
+
 .sidebar-top {
-  padding: 16px;
+  padding: 0 16px 16px;
   border-bottom: 1px solid var(--border);
+}
+
+.search-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 14px 16px;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.03) inset;
 }
 
 .sidebar-top label {
   font-size: 11px;
   font-weight: 500;
-  color: var(--text3);
+  color: var(--text2);
   text-transform: uppercase;
   letter-spacing: 0.8px;
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .input-wrap {
   position: relative;
-  margin-bottom: 8px;
+  margin-bottom: 0;
 }
 
 .input-wrap input {
@@ -146,31 +226,26 @@ header {
 .input-wrap input:focus { border-color: var(--accent); }
 .input-wrap input::placeholder { color: var(--text3); }
 
-.api-input {
-  font-family: 'DM Mono', monospace !important;
-  font-size: 11px !important;
-  letter-spacing: 0.5px;
-}
-
 .search-btn {
   width: 100%;
   background: var(--accent);
   color: #0c0e12;
   border: none;
   border-radius: var(--radius);
-  padding: 10px;
+  padding: 11px 14px;
   font-family: 'Syne', sans-serif;
   font-weight: 700;
   font-size: 13px;
   letter-spacing: 0.3px;
   cursor: pointer;
-  transition: background 0.15s, transform 0.1s;
-  margin-top: 4px;
+  transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+  margin-top: 12px;
+  box-shadow: 0 0 0 1px rgba(0,229,160,0.25), 0 4px 20px rgba(0,229,160,0.12);
 }
 
-.search-btn:hover { background: #00ffb3; }
+.search-btn:hover { background: #00ffb3; box-shadow: 0 0 0 1px rgba(0,229,160,0.35), 0 6px 24px rgba(0,229,160,0.18); }
 .search-btn:active { transform: scale(0.98); }
-.search-btn:disabled { background: var(--surface3); color: var(--text3); cursor: not-allowed; }
+.search-btn:disabled { background: var(--surface3); color: var(--text3); cursor: not-allowed; box-shadow: none; }
 
 /* progress */
 .progress-wrap {
@@ -213,6 +288,32 @@ header {
 .sector-list {
   overflow-y: auto;
   flex: 1;
+  min-height: 0;
+}
+
+.sector-list-hint,
+.sector-list-loading {
+  padding: 36px 20px;
+  text-align: center;
+  color: var(--text3);
+  font-size: 13px;
+  line-height: 1.55;
+  max-width: 260px;
+  margin: 0 auto;
+}
+
+.sector-list-loading {
+  color: var(--text2);
+}
+
+.sector-list-loading .hint-spinner {
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--surface3);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin: 0 auto 14px;
 }
 
 .sector-list::-webkit-scrollbar { width: 4px; }
@@ -297,6 +398,8 @@ header {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  background: linear-gradient(180deg, rgba(19,22,28,0.35) 0%, var(--bg) 180px);
 }
 
 .main-panel::-webkit-scrollbar { width: 4px; }
@@ -309,50 +412,72 @@ header {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px;
+  padding: 48px 28px 56px;
   text-align: center;
-  gap: 12px;
+  gap: 10px;
 }
 
-.welcome-icon {
-  width: 64px; height: 64px;
+.welcome-card {
+  max-width: 520px;
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 18px;
-  background: var(--accent-dim);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 28px;
-  margin-bottom: 8px;
+  padding: 40px 36px 36px;
+  box-shadow: var(--shadow-sm);
+}
+
+.welcome-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--accent);
+  margin-bottom: 14px;
 }
 
 .welcome h2 {
   font-family: 'Syne', sans-serif;
-  font-size: 22px;
-  font-weight: 700;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  line-height: 1.15;
 }
 
 .welcome p {
   color: var(--text2);
-  font-size: 13px;
-  max-width: 340px;
-  line-height: 1.6;
+  font-size: 14px;
+  max-width: 400px;
+  margin: 12px auto 0;
+  line-height: 1.65;
 }
 
 .steps {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
-  margin-top: 16px;
-  flex-wrap: wrap;
-  justify-content: center;
+  margin-top: 28px;
+  text-align: left;
+}
+
+@media (max-width: 520px) {
+  .steps { grid-template-columns: 1fr; }
 }
 
 .step {
   background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 14px 18px;
+  padding: 16px 16px 14px;
   font-size: 12px;
   color: var(--text2);
-  text-align: left;
-  max-width: 160px;
+  line-height: 1.45;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.step:hover {
+  border-color: rgba(0,229,160,0.25);
+  background: var(--surface3);
 }
 
 .step-num {
@@ -597,8 +722,8 @@ header {
 
 /* ── RIGHT PANEL — call log ── */
 .log-panel {
-  width: 260px;
-  min-width: 260px;
+  width: 272px;
+  min-width: 240px;
   background: var(--surface);
   border-left: 1px solid var(--border);
   display: flex;
@@ -607,36 +732,57 @@ header {
 }
 
 .log-panel-header {
-  padding: 14px 16px;
+  padding: 16px 16px 14px;
   border-bottom: 1px solid var(--border);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
+  gap: 10px;
+}
+
+.log-panel-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
 .log-panel-title {
   font-family: 'Syne', sans-serif;
   font-size: 13px;
-  font-weight: 600;
-  color: var(--text2);
+  font-weight: 700;
+  color: var(--text);
   text-transform: uppercase;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.6px;
+}
+
+.log-panel-sub {
+  font-size: 11px;
+  color: var(--text3);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 .clear-log-btn {
   font-size: 11px;
-  color: var(--text3);
-  background: none;
-  border: none;
+  color: var(--text2);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 5px 10px;
   cursor: pointer;
   font-family: 'DM Sans', sans-serif;
+  flex-shrink: 0;
+  transition: color 0.12s, border-color 0.12s, background 0.12s;
 }
-.clear-log-btn:hover { color: var(--danger); }
+.clear-log-btn:hover { color: var(--danger); border-color: var(--danger); background: var(--danger-dim); }
 
 .log-list {
   overflow-y: auto;
   flex: 1;
-  padding: 8px;
+  min-height: 0;
+  padding: 10px 12px;
 }
 
 .log-list::-webkit-scrollbar { width: 3px; }
@@ -665,16 +811,18 @@ header {
 .log-note { font-size: 11px; color: var(--text2); margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .log-empty {
-  padding: 24px 12px;
+  padding: 32px 16px;
   text-align: center;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text3);
+  line-height: 1.5;
 }
 
 /* export bar */
 .export-bar {
-  padding: 10px 12px;
+  padding: 12px 14px 14px;
   border-top: 1px solid var(--border);
+  background: rgba(0,0,0,0.12);
 }
 
 .export-btn {
@@ -683,10 +831,12 @@ header {
   color: var(--text2);
   border: 1px solid var(--border2);
   border-radius: var(--radius);
-  padding: 8px;
+  padding: 10px 12px;
   font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Syne', sans-serif;
+  letter-spacing: 0.2px;
   transition: all 0.12s;
 }
 .export-btn:hover { background: var(--accent-dim); color: var(--accent); border-color: var(--accent); }
@@ -714,140 +864,11 @@ header {
 /* no phone */
 .no-phone { color: var(--text3) !important; font-size: 13px !important; }
 
-/* ── LOGIN SCREEN ── */
-.login-screen {
-  position: fixed;
-  inset: 0;
-  background: var(--bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  flex-direction: column;
-  gap: 0;
-}
-
-.login-box {
-  background: var(--surface);
-  border: 1px solid var(--border2);
-  border-radius: 20px;
-  padding: 40px 36px;
-  width: 100%;
-  max-width: 380px;
-}
-
-.login-logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 28px;
-}
-
-.login-logo-dot {
-  width: 10px; height: 10px;
-  background: var(--accent);
-  border-radius: 50%;
-  box-shadow: 0 0 12px var(--accent);
-}
-
-.login-logo-text {
-  font-family: 'Syne', sans-serif;
-  font-weight: 800;
-  font-size: 20px;
-  letter-spacing: -0.3px;
-}
-
-.login-tagline {
-  font-size: 13px;
-  color: var(--text2);
-  margin-bottom: 28px;
-  line-height: 1.5;
-}
-
-.login-field {
-  margin-bottom: 14px;
-}
-
-.login-field label {
-  display: block;
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--text3);
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  margin-bottom: 6px;
-}
-
-.login-field input {
-  width: 100%;
-  background: var(--surface2);
-  border: 1px solid var(--border2);
-  border-radius: var(--radius);
-  padding: 11px 14px;
-  color: var(--text);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 14px;
-  outline: none;
-  transition: border-color 0.15s;
-}
-
-.login-field input:focus { border-color: var(--accent); }
-.login-field input::placeholder { color: var(--text3); }
-
-.login-btn {
-  width: 100%;
-  background: var(--accent);
-  color: #0c0e12;
-  border: none;
-  border-radius: var(--radius);
-  padding: 12px;
-  font-family: 'Syne', sans-serif;
-  font-weight: 700;
-  font-size: 15px;
-  cursor: pointer;
-  margin-top: 8px;
-  transition: background 0.15s, transform 0.1s;
-}
-
-.login-btn:hover { background: #00ffb3; }
-.login-btn:active { transform: scale(0.98); }
-
-.login-error {
-  background: var(--danger-dim);
-  border: 1px solid var(--danger);
-  border-radius: var(--radius);
-  padding: 9px 12px;
-  font-size: 13px;
-  color: var(--danger);
-  margin-top: 12px;
-  display: none;
-  text-align: center;
-}
-
-.login-error.visible { display: block; }
-
-.login-footer {
-  font-size: 11px;
-  color: var(--text3);
-  text-align: center;
-  margin-top: 20px;
-}
-
-.logout-btn {
-  font-size: 12px;
-  color: var(--text3);
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
-  padding: 0;
-}
-.logout-btn:hover { color: var(--danger); }
-
 /* scrollbar search */
 .search-filter-wrap {
-  padding: 8px 16px;
+  padding: 12px 16px 14px;
   border-bottom: 1px solid var(--border);
+  background: rgba(0,0,0,0.08);
 }
 .search-filter-wrap input {
   width: 100%;
@@ -881,73 +902,293 @@ header {
   pointer-events: none;
 }
 .toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── HEADER NAV (Workspace / Analytics) ── */
+.header-nav {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.nav-tab {
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.nav-tab:hover {
+  color: var(--text);
+  border-color: var(--border2);
+  background: var(--surface2);
+}
+
+.nav-tab.active {
+  color: #0c0e12;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.app-body.is-hidden { display: none !important; }
+
+/* ── ANALYTICS PAGE ── */
+.analytics-page {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--bg);
+  background-image: radial-gradient(ellipse 100% 60% at 50% -20%, rgba(0,229,160,0.07), transparent 50%);
+}
+
+.analytics-page.visible {
+  display: flex;
+  flex: 1 1 auto;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+  /* Body only has min-height; without this the panel can collapse to 0px when Workspace is hidden */
+  min-height: calc(100vh - var(--header-h));
+}
+
+.analytics-inner {
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 32px 28px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.analytics-hero {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 28px 32px 32px;
+  box-shadow: var(--shadow-sm);
+}
+
+.analytics-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.8px;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+.analytics-total {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(2.25rem, 6vw, 3.25rem);
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1.05;
+  color: var(--text);
+}
+
+.analytics-currency {
+  font-size: 0.55em;
+  color: var(--text2);
+  font-weight: 700;
+  margin-right: 4px;
+  vertical-align: super;
+}
+
+.analytics-sub {
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.55;
+  max-width: 520px;
+}
+
+.analytics-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+@media (max-width: 640px) {
+  .analytics-kpis { grid-template-columns: 1fr; }
+}
+
+.analytics-kpi {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+}
+
+.analytics-kpi-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text3);
+  margin-bottom: 8px;
+}
+
+.analytics-kpi-value {
+  font-family: 'DM Mono', monospace;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--accent);
+}
+
+.analytics-kpi-hint {
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 6px;
+}
+
+.analytics-chart-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 22px 24px 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.analytics-card-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text2);
+  margin-bottom: 18px;
+}
+
+.analytics-chart-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.analytics-chart-wrap svg {
+  display: block;
+  width: 100%;
+  min-width: 480px;
+  height: auto;
+}
+
+.analytics-chart-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding: 0 8px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--text3);
+  max-width: 100%;
+}
+
+.analytics-chart-labels span {
+  flex: 1;
+  text-align: center;
+}
+
+.analytics-footnote {
+  font-size: 12px;
+  color: var(--text3);
+  text-align: center;
+  padding: 8px 16px 0;
+  line-height: 1.5;
+}
+
+/* ── Responsive layout ── */
+@media (max-width: 960px) {
+  .app-body {
+    flex-direction: column;
+    height: auto;
+    min-height: calc(100vh - var(--header-h));
+  }
+  .sidebar {
+    width: 100%;
+    min-width: 0;
+    max-height: min(48vh, 420px);
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .main-panel {
+    min-height: 320px;
+  }
+  .log-panel {
+    width: 100%;
+    min-width: 0;
+    max-height: min(40vh, 360px);
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+  .header-stats { max-width: 58vw; }
+}
+
+@media (max-width: 540px) {
+  header { padding: 0 16px; flex-wrap: wrap; height: auto; min-height: var(--header-h); padding-top: 10px; padding-bottom: 10px; gap: 10px; }
+  .header-stats { width: 100%; justify-content: flex-start; max-width: none; }
+  .header-tagline { display: none; }
+  .header-nav { order: 3; width: 100%; justify-content: flex-start; flex: none; }
+}
 </style>
 </head>
 <body>
 
-<!-- LOGIN SCREEN -->
-<div class="login-screen" id="loginScreen">
-  <div class="login-box">
-    <div class="login-logo">
-      <div class="login-logo-dot"></div>
-      <div class="login-logo-text">EnergyCall Pro</div>
-    </div>
-    <p class="login-tagline">Sign in to access your energy comparison calling tool.</p>
-    <div class="login-field">
-      <label>Username</label>
-      <input type="text" id="loginUser" placeholder="Enter your username" autocomplete="username" />
-    </div>
-    <div class="login-field">
-      <label>Password</label>
-      <input type="password" id="loginPass" placeholder="Enter your password" autocomplete="current-password" />
-    </div>
-    <button class="login-btn" onclick="attemptLogin()">Sign in</button>
-    <div class="login-error" id="loginError">Incorrect username or password. Please try again.</div>
-    <p class="login-footer">EnergyCall Pro &mdash; Private access only</p>
-  </div>
-</div>
-
 <header>
-  <div class="logo">
-    <div class="logo-dot"></div>
-    EnergyCall Pro
+  <div class="header-brand">
+    <div class="logo">
+      <div class="logo-dot"></div>
+      EnergyCall Pro
+    </div>
+    <p class="header-tagline">UK business energy · compare &amp; call</p>
   </div>
-    <div class="header-stats">
+  <nav class="header-nav" aria-label="Main views">
+    <button type="button" class="nav-tab active" id="navWorkspace">Workspace</button>
+    <button type="button" class="nav-tab" id="navAnalytics">Analytics</button>
+  </nav>
+  <div class="header-stats">
     <div class="stat-pill">Businesses found: <strong id="hdr-total">0</strong></div>
     <div class="stat-pill">Called today: <strong id="hdr-called">0</strong></div>
     <div class="stat-pill">Interested: <strong id="hdr-interested">0</strong></div>
-    <button class="logout-btn" onclick="logout()">Sign out</button>
   </div>
 </header>
 
-<div class="app-body">
+<div class="app-body" id="appWorkspace">
 
   <!-- LEFT SIDEBAR -->
   <div class="sidebar">
+    <p class="sidebar-section-label">Search</p>
     <div class="sidebar-top">
-      <label>Google Places API Key</label>
-      <div class="input-wrap">
-        <input class="api-input" type="password" id="apikey" placeholder="AIza..." />
+      <div class="search-card">
+        <label>Location / Postcode</label>
+        <div class="input-wrap">
+          <input type="text" id="location" placeholder="e.g. Burnley or BB11 1AA" autocomplete="street-address" />
+        </div>
+        <button type="button" class="search-btn" id="searchBtn" onclick="startSearch()">Search area</button>
       </div>
-      <label>Location / Postcode</label>
-      <div class="input-wrap">
-        <input type="text" id="location" placeholder="e.g. Burnley or BB11 1AA" />
-      </div>
-      <button class="search-btn" id="searchBtn" onclick="startSearch()">Search Area</button>
     </div>
 
     <div class="progress-wrap" id="progressWrap">
       <div class="progress-bar" id="progressBar"></div>
     </div>
 
+    <p class="sidebar-section-label">Sectors &amp; list</p>
     <div class="search-filter-wrap">
-      <input type="text" id="bizFilter" placeholder="Filter businesses..." oninput="filterBizList()" />
+      <input type="search" id="bizFilter" placeholder="Filter by business name…" oninput="filterBizList()" autocomplete="off" />
     </div>
 
     <div class="sector-list" id="sectorList">
-      <div style="padding:32px 16px;text-align:center;color:var(--text3);font-size:12px;">
-        Enter your API key and a location above, then hit Search Area.
-      </div>
+      <div class="sector-list-hint">Enter a UK town or postcode in Search, then run <strong style="color:var(--text2);font-weight:600;">Search area</strong> to load businesses by sector.</div>
     </div>
   </div>
 
@@ -955,14 +1196,16 @@ header {
   <div class="main-panel" id="mainPanel">
 
     <div class="welcome" id="welcomeView">
-      <div class="welcome-icon">⚡</div>
-      <h2>EnergyCall Pro</h2>
-      <p>Your complete energy comparison calling tool. Search any UK area to pull every business, organised by sector, ready to call.</p>
-      <div class="steps">
-        <div class="step"><span class="step-num">01</span>Paste your Google Places API key</div>
-        <div class="step"><span class="step-num">02</span>Enter a town or postcode</div>
-        <div class="step"><span class="step-num">03</span>Click a business to see their details</div>
-        <div class="step"><span class="step-num">04</span>Call, log the outcome, move on</div>
+      <div class="welcome-card">
+        <p class="welcome-eyebrow">Calling workspace</p>
+        <h2>EnergyCall Pro</h2>
+        <p>Search any UK area, browse businesses by sector, open details, dial in one tap, and log every outcome in your pipeline.</p>
+        <div class="steps">
+          <div class="step"><span class="step-num">01</span>Enter a town or postcode in the sidebar</div>
+          <div class="step"><span class="step-num">02</span>Run search — results group by sector</div>
+          <div class="step"><span class="step-num">03</span>Select a business for phone, maps &amp; hours</div>
+          <div class="step"><span class="step-num">04</span>Log interest, callbacks, and export CSV</div>
+        </div>
       </div>
     </div>
 
@@ -977,63 +1220,195 @@ header {
   <!-- RIGHT LOG PANEL -->
   <div class="log-panel">
     <div class="log-panel-header">
-      <span class="log-panel-title">Call Log</span>
-      <button class="clear-log-btn" onclick="clearLog()">Clear</button>
+      <div class="log-panel-titles">
+        <span class="log-panel-title">Call log</span>
+        <span class="log-panel-sub">Outcomes &amp; notes</span>
+      </div>
+      <button type="button" class="clear-log-btn" onclick="clearLog()">Clear</button>
     </div>
     <div class="log-list" id="logList">
       <div class="log-empty">No calls logged yet.</div>
     </div>
     <div class="export-bar">
-      <button class="export-btn" onclick="exportCSV()">Export log as CSV</button>
+      <button type="button" class="export-btn" onclick="exportCSV()">Export log as CSV</button>
     </div>
   </div>
 
 </div>
 
+<!-- ANALYTICS (placeholder commission + chart) -->
+<div class="analytics-page" id="analyticsPage" aria-hidden="true">
+  <div class="analytics-inner">
+    <section class="analytics-hero">
+      <p class="analytics-eyebrow">Commission overview · demo figures</p>
+      <p class="analytics-total"><span class="analytics-currency">£</span><span id="analyticsTotalDisplay">—</span></p>
+      <p class="analytics-sub">Placeholder totals in GBP for layout only. Hook this to your CRM or spreadsheets when you are ready.</p>
+    </section>
+
+    <div class="analytics-kpis">
+      <div class="analytics-kpi">
+        <div class="analytics-kpi-label">This month (demo)</div>
+        <div class="analytics-kpi-value" id="analyticsMtd">—</div>
+        <div class="analytics-kpi-hint">vs last month placeholder</div>
+      </div>
+      <div class="analytics-kpi">
+        <div class="analytics-kpi-label">Avg per deal (demo)</div>
+        <div class="analytics-kpi-value" id="analyticsAvg">—</div>
+        <div class="analytics-kpi-hint">Rolling 6 months</div>
+      </div>
+      <div class="analytics-kpi">
+        <div class="analytics-kpi-label">Deals closed (demo)</div>
+        <div class="analytics-kpi-value" id="analyticsDeals">—</div>
+        <div class="analytics-kpi-hint">Year to date placeholder</div>
+      </div>
+    </div>
+
+    <section class="analytics-chart-card">
+      <h2 class="analytics-card-title">Commission by month (last 6)</h2>
+      <div class="analytics-chart-wrap" id="analyticsChartWrap"></div>
+      <div class="analytics-chart-labels" id="analyticsChartLabels"></div>
+    </section>
+
+    <p class="analytics-footnote">Figures are static placeholders. Replace <code style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);">ANALYTICS_PLACEHOLDER</code> in the script with your data source.</p>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
-const CREDENTIALS = { username: 'mrhaych', password: 'EnergyPro2026!' };
-const SESSION_KEY = 'ecp_auth';
+/** Demo-only: swap for real totals from your backend or imports. */
+const ANALYTICS_PLACEHOLDER = {
+  totalCommission: 12847.5,
+  mtd: 3240,
+  avgPerDeal: 918.39,
+  dealsYtd: 14,
+  months: [
+    { label: 'Sep', value: 1420 },
+    { label: 'Oct', value: 1680 },
+    { label: 'Nov', value: 1210 },
+    { label: 'Dec', value: 2100 },
+    { label: 'Jan', value: 1890 },
+    { label: 'Feb', value: 2547.5 },
+  ],
+};
 
-function checkAuth() {
-  const authed = sessionStorage.getItem(SESSION_KEY);
-  if (authed === 'true') {
-    document.getElementById('loginScreen').style.display = 'none';
+let analyticsChartRendered = false;
+
+function formatGBP(value) {
+  return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
+}
+
+function formatGBPCompact(value) {
+  return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 }).format(value);
+}
+
+function showWorkspace() {
+  document.getElementById('analyticsPage').classList.remove('visible');
+  document.getElementById('analyticsPage').setAttribute('aria-hidden', 'true');
+  document.getElementById('appWorkspace').classList.remove('is-hidden');
+  document.getElementById('navWorkspace').classList.add('active');
+  document.getElementById('navAnalytics').classList.remove('active');
+}
+
+function showAnalytics() {
+  document.getElementById('appWorkspace').classList.add('is-hidden');
+  document.getElementById('analyticsPage').classList.add('visible');
+  document.getElementById('analyticsPage').setAttribute('aria-hidden', 'false');
+  document.getElementById('navWorkspace').classList.remove('active');
+  document.getElementById('navAnalytics').classList.add('active');
+  try {
+    renderAnalyticsDashboard();
+  } catch (e) {
+    console.error(e);
+    toast('Could not draw analytics: ' + (e.message || 'error'));
   }
 }
 
-function attemptLogin() {
-  const user = document.getElementById('loginUser').value.trim();
-  const pass = document.getElementById('loginPass').value;
-  const err = document.getElementById('loginError');
-  if (user === CREDENTIALS.username && pass === CREDENTIALS.password) {
-    sessionStorage.setItem(SESSION_KEY, 'true');
-    document.getElementById('loginScreen').style.display = 'none';
-    err.classList.remove('visible');
-    toast('Welcome back, ' + user + '!');
-  } else {
-    err.classList.add('visible');
-    document.getElementById('loginPass').value = '';
-    document.getElementById('loginPass').focus();
+function renderAnalyticsDashboard() {
+  const d = ANALYTICS_PLACEHOLDER;
+  const totalStr = formatGBP(d.totalCommission);
+  document.getElementById('analyticsTotalDisplay').textContent = totalStr.replace(/^\u00a3/, '').replace(/^£/, '').trim();
+  document.getElementById('analyticsMtd').textContent = formatGBPCompact(d.mtd);
+  document.getElementById('analyticsAvg').textContent = formatGBPCompact(d.avgPerDeal);
+  document.getElementById('analyticsDeals').textContent = String(d.dealsYtd);
+
+  if (analyticsChartRendered) return;
+
+  const months = d.months;
+  const values = months.map(m => m.value);
+  const maxV = Math.max(...values, 1) * 1.12;
+  const w = 640;
+  const h = 240;
+  const padL = 44;
+  const padR = 16;
+  const padT = 16;
+  const padB = 36;
+  const innerW = w - padL - padR;
+  const innerH = h - padT - padB;
+
+  const pts = values.map((v, i) => {
+    const x = padL + (i / Math.max(values.length - 1, 1)) * innerW;
+    const y = padT + innerH - (v / maxV) * innerH;
+    return [x, y];
+  });
+
+  const lineD = pts.map((p, i) => (i === 0 ? 'M' : 'L') + p[0] + ',' + p[1]).join(' ');
+  const areaD = lineD + ' L' + pts[pts.length - 1][0] + ',' + (padT + innerH) + ' L' + pts[0][0] + ',' + (padT + innerH) + ' Z';
+
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', 'Commission by month, demo data');
+
+  const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+  defs.innerHTML = '<linearGradient id="commissionFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgb(0,229,160)" stop-opacity="0.35"/><stop offset="100%" stop-color="rgb(0,229,160)" stop-opacity="0"/></linearGradient>';
+  svg.appendChild(defs);
+
+  const grid = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  grid.setAttribute('stroke', 'rgba(255,255,255,0.06)');
+  grid.setAttribute('stroke-width', '1');
+  for (let i = 0; i <= 4; i++) {
+    const gy = padT + (i / 4) * innerH;
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', String(padL));
+    line.setAttribute('x2', String(w - padR));
+    line.setAttribute('y1', String(gy));
+    line.setAttribute('y2', String(gy));
+    grid.appendChild(line);
   }
+  svg.appendChild(grid);
+
+  const area = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  area.setAttribute('d', areaD);
+  area.setAttribute('fill', 'url(#' + gid + ')');
+  svg.appendChild(area);
+
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('d', lineD);
+  path.setAttribute('fill', 'none');
+  path.setAttribute('stroke', '#00e5a0');
+  path.setAttribute('stroke-width', '2.5');
+  path.setAttribute('stroke-linecap', 'round');
+  path.setAttribute('stroke-linejoin', 'round');
+  svg.appendChild(path);
+
+  pts.forEach(p => {
+    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('cx', String(p[0]));
+    c.setAttribute('cy', String(p[1]));
+    c.setAttribute('r', '5');
+    c.setAttribute('fill', '#0c0e12');
+    c.setAttribute('stroke', '#00e5a0');
+    c.setAttribute('stroke-width', '2');
+    svg.appendChild(c);
+  });
+
+  document.getElementById('analyticsChartWrap').appendChild(svg);
+
+  const lab = document.getElementById('analyticsChartLabels');
+  lab.innerHTML = months.map(m => '<span>' + m.label + '</span>').join('');
+  analyticsChartRendered = true;
 }
-
-function logout() {
-  sessionStorage.removeItem(SESSION_KEY);
-  document.getElementById('loginScreen').style.display = 'flex';
-  document.getElementById('loginUser').value = '';
-  document.getElementById('loginPass').value = '';
-  document.getElementById('loginError').classList.remove('visible');
-}
-
-document.addEventListener('keydown', e => {
-  if (document.getElementById('loginScreen').style.display !== 'none') {
-    if (e.key === 'Enter') attemptLogin();
-  }
-});
-
-checkAuth();
 
 const SECTORS = [
   {name:"Retail", icon:"🛍", tag:"B2C", types:["supermarket","convenience_store","clothing_store","hardware_store","pharmacy","book_store","pet_store","electronics_store","furniture_store","florist","shoe_store","department_store","liquor_store"]},
@@ -1051,7 +1426,15 @@ const SECTORS = [
 ];
 
 let allData = {};
-let callLog = JSON.parse(localStorage.getItem('ecp_calllog') || '[]');
+let callLog = [];
+try {
+  const raw = localStorage.getItem('ecp_calllog');
+  const parsed = raw ? JSON.parse(raw) : [];
+  callLog = Array.isArray(parsed) ? parsed : [];
+} catch (e) {
+  console.warn('ecp_calllog reset (invalid JSON)', e);
+  callLog = [];
+}
 let currentBiz = null;
 let openSectors = new Set();
 
@@ -1076,35 +1459,42 @@ function setProgress(p) {
   b.style.width = p + '%';
 }
 
-async function geocode(loc, key) {
-  const r = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(loc + ', UK')}&key=${key}`);
+// Maps calls go through /api/* server routes so the key stays in Vercel env (GOOGLE_MAPS_API_KEY).
+async function geocode(loc) {
+  const r = await fetch('/api/geocode?' + new URLSearchParams({ address: loc + ', UK' }));
   const d = await r.json();
-  if (!d.results || !d.results.length) return null;
+  if (!r.ok) throw new Error(d.error || 'Geocoding request failed.');
+  if (d.status === 'REQUEST_DENIED' || (d.error_message && d.status !== 'OK' && d.status !== 'ZERO_RESULTS')) {
+    throw new Error(d.error_message || 'Geocoding was denied. Check the server API key and billing.');
+  }
+  if (d.status === 'ZERO_RESULTS' || !d.results || !d.results.length) return null;
   const g = d.results[0].geometry.location;
   return { lat: g.lat, lng: g.lng, name: d.results[0].formatted_address };
 }
 
-async function nearbySearch(lat, lng, type, key) {
-  const r = await fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=3000&type=${type}&key=${key}`);
+async function nearbySearch(lat, lng, type) {
+  const r = await fetch(
+    '/api/nearby?' + new URLSearchParams({ lat: String(lat), lng: String(lng), type })
+  );
   const d = await r.json();
+  if (!r.ok) return [];
   return d.results || [];
 }
 
-async function getDetails(placeId, key) {
-  const fields = 'name,formatted_phone_number,formatted_address,website,opening_hours,rating,business_status,types';
-  const r = await fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=${fields}&key=${key}`);
+async function getDetails(placeId) {
+  const r = await fetch('/api/place-details?' + new URLSearchParams({ place_id: placeId }));
   const d = await r.json();
+  if (!r.ok) return {};
+  if (d.status === 'REQUEST_DENIED' && d.error_message) throw new Error(d.error_message);
   return d.result || {};
 }
 
 async function startSearch() {
-  const key = document.getElementById('apikey').value.trim();
   const loc = document.getElementById('location').value.trim();
-  if (!key) { toast('Please enter your Google Places API key.'); return; }
   if (!loc) { toast('Please enter a location or postcode.'); return; }
 
   document.getElementById('searchBtn').disabled = true;
-  document.getElementById('sectorList').innerHTML = '<div style="padding:24px 16px;text-align:center;color:var(--text3);font-size:12px;">Searching...</div>';
+  document.getElementById('sectorList').innerHTML = '<div class="sector-list-loading"><div class="hint-spinner" aria-hidden="true"></div>Searching the area…</div>';
   document.getElementById('detailView').classList.remove('visible');
   document.getElementById('welcomeView').style.display = 'flex';
   allData = {};
@@ -1112,7 +1502,7 @@ async function startSearch() {
   setProgress(5);
 
   try {
-    const geo = await geocode(loc, key);
+    const geo = await geocode(loc);
     if (!geo) { toast('Location not found. Try a full postcode or town name.'); document.getElementById('searchBtn').disabled = false; setProgress(0); return; }
 
     const { lat, lng } = geo;
@@ -1124,7 +1514,7 @@ async function startSearch() {
       const businesses = [];
       for (const type of sector.types.slice(0, 3)) {
         try {
-          const res = await nearbySearch(lat, lng, type, key);
+          const res = await nearbySearch(lat, lng, type);
           for (const p of res) {
             if (!seen.has(p.place_id)) {
               seen.add(p.place_id);
@@ -1226,10 +1616,9 @@ async function openBiz(biz) {
     el.classList.toggle('active', el.dataset.placeId === biz.place_id);
   });
 
-  const key = document.getElementById('apikey').value.trim();
   let d = biz._details;
   if (!d) {
-    try { d = await getDetails(biz.place_id, key); biz._details = d; } catch(e) { d = {}; }
+    try { d = await getDetails(biz.place_id); biz._details = d; } catch(e) { d = {}; }
   }
 
   document.getElementById('loadingDetail').style.display = 'none';
@@ -1391,7 +1780,19 @@ function exportCSV() {
   toast('Exported as CSV!');
 }
 
-document.getElementById('location').addEventListener('keydown', e => { if (e.key === 'Enter') startSearch(); });
+(function bindShellControls() {
+  try {
+    var loc = document.getElementById('location');
+    if (loc) loc.addEventListener('keydown', function (e) { if (e.key === 'Enter') startSearch(); });
+    var nw = document.getElementById('navWorkspace');
+    var na = document.getElementById('navAnalytics');
+    if (nw) nw.addEventListener('click', showWorkspace);
+    if (na) na.addEventListener('click', showAnalytics);
+  } catch (e) {
+    console.error('Could not bind header / search controls', e);
+  }
+})();
+
 renderLog();
 updateHeaderStats();
 </script>

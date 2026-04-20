@@ -1,0 +1,11 @@
+# Secrets — never commit
+.env
+.env.local
+.env.*.local
+
+# Vercel
+.vercel
+
+# OS
+.DS_Store
+.env*.local
