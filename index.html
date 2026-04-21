@@ -4,6 +4,8 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>EnergyCall Pro</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="apple-touch-icon" href="/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -99,7 +101,7 @@ header {
 }
 .stat-pill strong { color: var(--accent); font-weight: 500; font-size: 12px; }
 
-.app-body { display: flex; flex: 1; height: calc(100vh - var(--header-h)); min-height: 0; }
+.app-body { display: flex; flex: 1; height: calc(100vh - var(--header-h)); min-height: 0; overflow: hidden; }
 
 .sidebar {
   width: 308px; min-width: 280px;
@@ -237,7 +239,9 @@ header {
 
 .main-panel {
   flex: 1; overflow-y: auto; display: flex; flex-direction: column;
+  height: 100%;
   min-width: 0;
+  min-height: 0;
   background: linear-gradient(180deg, rgba(19,22,28,0.35) 0%, var(--bg) 180px);
 }
 .main-panel::-webkit-scrollbar { width: 4px; }
@@ -949,7 +953,7 @@ a[href^="https://maps.google.com/maps"] { display: none !important; }
     </div>
   </div>
 
-  <div class="main-panel" id="mainPanel">
+  <div class="main-panel" id="detailPanel">
     <div class="welcome" id="welcomeView">
       <div class="welcome-card">
         <p class="welcome-eyebrow">Calling workspace</p>
@@ -1250,6 +1254,7 @@ let mapDrawerRememberedBiz = null;
 let reopenDrawerOnMapReturn = false;
 const MIN_FIRST_RESULT_DELAY_MS = 3200;
 const DETAIL_BLOCK_ORDER_KEY = 'ecp_detail_block_order';
+const SESSION_STATE_KEY = 'ecp_session_state_v1';
 let activeSearchToken = 0;
 let activeSearchAbortController = null;
 let activeSearchProgressTicker = null;
@@ -1877,6 +1882,7 @@ async function expandRadius() {
       plotMarkers(newBiz, true);
       renderSectorList();
       updateHeaderStats();
+      saveSessionState();
       toast(newBiz.length + ' new businesses found in expanded area');
     } else {
       toast('No new businesses found — try expanding further');
@@ -2061,6 +2067,101 @@ function saveLog() {
   localStorage.setItem('ecp_calllog', JSON.stringify(callLog));
   renderLog();
   updateHeaderStats();
+}
+
+async function loadCallLogFromServer() {
+  try {
+    const r = await fetch('/api/calls');
+    if (!r.ok) return;
+    const data = await r.json();
+    if (!Array.isArray(data)) return;
+    callLog = data.map(row => ({
+      place_id: row.place_id,
+      name: row.name,
+      sector: row.sector,
+      outcome: row.outcome,
+      time: row.time_label || '',
+      note: row.note || '',
+    }));
+    localStorage.setItem('ecp_calllog', JSON.stringify(callLog));
+    renderLog();
+    updateHeaderStats();
+  } catch (e) {}
+}
+
+async function syncCallEntry(entry) {
+  try {
+    await fetch('/api/calls', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        place_id: entry.place_id,
+        name: entry.name,
+        sector: entry.sector,
+        outcome: entry.outcome,
+        note: entry.note || '',
+        time_label: entry.time,
+      }),
+    });
+  } catch (e) {}
+}
+
+function saveSessionState() {
+  try {
+    const locEl = document.getElementById('location');
+    const radiusEl = document.getElementById('radiusSlider');
+    const payload = {
+      location: locEl ? locEl.value : '',
+      allData,
+      searchCenter: window.__searchCenter__ || window.searchCenter || null,
+      openSectors: Array.from(openSectors),
+      radiusSliderValue: radiusEl ? String(radiusEl.value || '1') : '1',
+    };
+    localStorage.setItem(SESSION_STATE_KEY, JSON.stringify(payload));
+  } catch (e) {}
+}
+
+function restoreSessionState() {
+  try {
+    const raw = localStorage.getItem(SESSION_STATE_KEY);
+    if (!raw) return false;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return false;
+
+    const locEl = document.getElementById('location');
+    if (locEl && typeof parsed.location === 'string') locEl.value = parsed.location;
+
+    if (parsed.searchCenter && Number.isFinite(parsed.searchCenter.lat) && Number.isFinite(parsed.searchCenter.lng)) {
+      window.__searchCenter__ = { lat: Number(parsed.searchCenter.lat), lng: Number(parsed.searchCenter.lng) };
+      window.searchCenter = window.__searchCenter__;
+    }
+
+    const restoredBuckets = createEmptySectorBuckets();
+    if (parsed.allData && typeof parsed.allData === 'object') {
+      Object.keys(parsed.allData).forEach(k => {
+        if (!restoredBuckets[k]) return;
+        const arr = parsed.allData[k];
+        restoredBuckets[k] = Array.isArray(arr) ? arr : [];
+      });
+    }
+    allData = restoredBuckets;
+
+    openSectors = new Set(Array.isArray(parsed.openSectors) ? parsed.openSectors : []);
+
+    const radiusEl = document.getElementById('radiusSlider');
+    if (radiusEl && parsed.radiusSliderValue != null) radiusEl.value = String(parsed.radiusSliderValue);
+
+    const hasResults = SECTORS.some(s => (allData[s.name] || []).length > 0);
+    if (hasResults) {
+      renderSectorList();
+      updateHeaderStats();
+      toast('Session restored');
+      return true;
+    }
+    return false;
+  } catch (e) {
+    return false;
+  }
 }
 
 function toast(msg) {
@@ -2249,6 +2350,7 @@ async function startSearch() {
     renderSectorList();
     updateHeaderStats();
     if (isMapVisible()) renderMap();
+    saveSessionState();
     setTimeout(() => setProgress(0), 3000);
     searchStartedAtMs = null;
     activeSearchAbortController = null;
@@ -2320,6 +2422,7 @@ function toggleSector(name, hdr) {
   const open = list.classList.toggle('open');
   chev.classList.toggle('open', open);
   if (open) openSectors.add(name); else openSectors.delete(name);
+  saveSessionState();
 }
 
 function moveBusinessToSector(placeId, newSector) {
@@ -2356,6 +2459,7 @@ function moveBusinessToSector(placeId, newSector) {
     currentBiz.sector = newSector;
     renderDetail(currentBiz, currentBiz._details || {});
   }
+  saveSessionState();
   toast('Moved to ' + newSector + '.');
 }
 
@@ -2561,6 +2665,7 @@ function setOutcome(outcome, placeId, name, sector) {
   const entry = { place_id: placeId, name, sector, outcome, time: timeStr, note: existing >= 0 ? callLog[existing].note : '' };
   if (existing >= 0) callLog[existing] = entry; else callLog.unshift(entry);
   saveLog();
+  syncCallEntry(entry);
   if (currentBiz && currentBiz.place_id === placeId) renderDetail(currentBiz, currentBiz._details || {});
   toast('Outcome saved: ' + outcome);
 }
@@ -2568,7 +2673,7 @@ function setOutcome(outcome, placeId, name, sector) {
 function saveNote(placeId) {
   const note = document.getElementById('noteInput')?.value || '';
   const existing = callLog.findIndex(e => e.place_id === placeId);
-  if (existing >= 0) { callLog[existing].note = note; saveLog(); toast('Note saved.'); }
+  if (existing >= 0) { callLog[existing].note = note; saveLog(); syncCallEntry(callLog[existing]); toast('Note saved.'); }
   else { toast('Set an outcome first before saving a note.'); }
 }
 
@@ -2609,6 +2714,7 @@ function clearLog() {
       callLog = [];
       saveLog();
       toast('Call log cleared.');
+      fetch('/api/calls?all=1', { method: 'DELETE' }).catch(() => {});
     }
   );
 }
@@ -2647,7 +2753,8 @@ if (nm) nm.addEventListener('click', showMap);
 })();
 
 renderLog();
-updateHeaderStats();
+if (!restoreSessionState()) updateHeaderStats();
+loadCallLogFromServer();
 </script>
 </body>
 </html>
