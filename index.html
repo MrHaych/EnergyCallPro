@@ -8,6 +8,8 @@
 <link rel="apple-touch-icon" href="/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script>document.documentElement.style.visibility='hidden'</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
 :root {
   --bg: #0c0e12;
@@ -707,6 +709,15 @@ header {
 }
 body.call-companion-open { overflow: hidden; }
 
+.signout-btn {
+  font-size: 11px; color: var(--text3); background: transparent;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 5px 11px; cursor: pointer; font-family: 'DM Sans', sans-serif;
+  flex-shrink: 0; transition: color 0.12s, border-color 0.12s, background 0.12s;
+  white-space: nowrap;
+}
+.signout-btn:hover { color: var(--danger); border-color: var(--danger); background: var(--danger-dim); }
+
 .header-nav { flex: 1; display: flex; justify-content: center; align-items: center; gap: 6px; min-width: 0; }
 .nav-tab {
   font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700;
@@ -936,6 +947,7 @@ a[href^="https://maps.google.com/maps"] { display: none !important; }
     <div class="stat-pill">Called today: <strong id="hdr-called">0</strong></div>
     <div class="stat-pill">Interested: <strong id="hdr-interested">0</strong></div>
   </div>
+  <button type="button" class="signout-btn" onclick="signOut()">Sign out</button>
 </header>
 
 <div class="app-body" id="appWorkspace">
@@ -2755,6 +2767,37 @@ if (nm) nm.addEventListener('click', showMap);
 renderLog();
 if (!restoreSessionState()) updateHeaderStats();
 loadCallLogFromServer();
+
+let _supabaseClient = null;
+const _authRevealTimeout = setTimeout(() => { document.documentElement.style.visibility = ''; }, 4000);
+
+(async function initAuth() {
+  try {
+    const r = await fetch('/api/config');
+    const cfg = await r.json();
+    if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) {
+      clearTimeout(_authRevealTimeout);
+      document.documentElement.style.visibility = '';
+      return;
+    }
+    _supabaseClient = supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+    const { data: { session } } = await _supabaseClient.auth.getSession();
+    if (!session) { window.location.href = '/login.html'; return; }
+    clearTimeout(_authRevealTimeout);
+    document.documentElement.style.visibility = '';
+    _supabaseClient.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT') window.location.href = '/login.html';
+    });
+  } catch (e) {
+    clearTimeout(_authRevealTimeout);
+    document.documentElement.style.visibility = '';
+  }
+})();
+
+async function signOut() {
+  try { if (_supabaseClient) await _supabaseClient.auth.signOut(); } catch (e) {}
+  window.location.href = '/login.html';
+}
 </script>
 </body>
 </html>
