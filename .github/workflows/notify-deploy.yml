@@ -1,0 +1,24 @@
+name: Notify on Deploy
+
+on:
+  deployment_status:
+
+jobs:
+  notify:
+    if: >
+      github.event.deployment_status.state == 'success' &&
+      github.event.deployment.environment == 'Production'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send phone notification
+        run: |
+          curl -s \
+            -H "Title: ✅ EnergyCall Pro is live" \
+            -H "Priority: default" \
+            -H "Tags: rocket,white_check_mark" \
+            -H "Click: https://energycallpro.xyz" \
+            -d "Deployment successful. Your changes are live at energycallpro.xyz
+
+Commit: ${{ github.event.deployment.ref }}
+${{ github.event.deployment_status.target_url }}" \
+            https://ntfy.sh/ecp-deploy-8e96dfa279
