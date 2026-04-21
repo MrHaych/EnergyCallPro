@@ -833,6 +833,84 @@ body.call-companion-open { overflow: hidden; }
 .analytics-outcome-count { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text3); width: 28px; text-align: right; flex-shrink: 0; }
 .analytics-footnote { font-size: 11px; color: var(--text3); text-align: center; padding: 4px 16px; line-height: 1.6; opacity: 0.6; }
 
+/* Flip clock balance */
+.flip-balance-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: 28px 32px; box-shadow: var(--shadow-sm);
+  display: flex; flex-direction: column; align-items: flex-start; gap: 18px;
+}
+.flip-balance-label {
+  font-family: 'DM Mono', monospace; font-size: 11px;
+  text-transform: uppercase; letter-spacing: 1.8px; color: var(--text3);
+}
+.flip-balance-display { display: flex; align-items: center; gap: 6px; }
+.fc-currency {
+  font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800;
+  color: var(--accent); margin-right: 4px; line-height: 1;
+  align-self: center;
+}
+.fc-digits { display: flex; align-items: center; gap: 5px; }
+.fc-sep {
+  font-family: 'DM Mono', monospace; font-size: 36px; font-weight: 500;
+  color: var(--text3); line-height: 1; margin: 0 1px;
+  align-self: center; padding-bottom: 4px;
+}
+.fc-tile {
+  position: relative; width: 52px; height: 76px;
+  border-radius: 8px; flex-shrink: 0;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+}
+.fc-face {
+  position: absolute; width: 100%; overflow: hidden;
+  display: flex; justify-content: center;
+  font-family: 'DM Mono', monospace; font-size: 44px; font-weight: 500;
+  color: var(--text); letter-spacing: -1px; pointer-events: none;
+}
+.fc-face-top {
+  height: 50%; top: 0; align-items: flex-end;
+  border-radius: 8px 8px 0 0;
+  border: 1px solid rgba(255,255,255,0.09); border-bottom: none;
+  background: linear-gradient(180deg, #252b38 0%, #1e2330 100%);
+  padding-bottom: 2px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.fc-face-top span { transform: translateY(50%); display: block; }
+.fc-face-bot {
+  height: 50%; bottom: 0; align-items: flex-start;
+  border-radius: 0 0 8px 8px;
+  border: 1px solid rgba(255,255,255,0.06); border-top: 1px solid rgba(0,0,0,0.5);
+  background: linear-gradient(180deg, #161a22 0%, #1a1e27 100%);
+  padding-top: 2px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+}
+.fc-face-bot span { transform: translateY(-50%); display: block; }
+.fc-flap {
+  position: absolute; width: 100%; height: 50%; top: 0; z-index: 3;
+  overflow: hidden; border-radius: 8px 8px 0 0;
+  border: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(0,0,0,0.6);
+  background: linear-gradient(180deg, #252b38 0%, #1e2330 100%);
+  transform-origin: center bottom;
+  display: flex; justify-content: center; align-items: flex-end;
+  padding-bottom: 2px;
+  font-family: 'DM Mono', monospace; font-size: 44px; font-weight: 500;
+  color: var(--text); letter-spacing: -1px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+  backface-visibility: hidden;
+}
+.fc-flap span { transform: translateY(50%); display: block; }
+.fc-flap.fc-flipping {
+  animation: fc-flip 0.28s ease-in forwards;
+}
+@keyframes fc-flip {
+  0%   { transform: rotateX(0deg);   box-shadow: inset 0 1px 0 rgba(255,255,255,0.06); }
+  100% { transform: rotateX(-90deg); box-shadow: 0 6px 20px rgba(0,0,0,0.8); }
+}
+.fc-shine {
+  position: absolute; width: 100%; height: 2px;
+  top: calc(50% - 1px); z-index: 4; pointer-events: none;
+  background: rgba(0,0,0,0.55);
+}
+
 @media (max-width: 960px) {
   .app-body { flex-direction: column; height: auto; min-height: calc(100vh - var(--header-h)); }
   .sidebar { width: 100%; min-width: 0; max-height: min(48vh, 420px); border-right: none; border-bottom: 1px solid var(--border); }
@@ -1127,6 +1205,14 @@ a[href^="https://maps.google.com/maps"] { display: none !important; }
         <div class="analytics-kpi-hint"><span class="analytics-trend-up">↑ 4</span>&nbsp;year to date</div>
       </div>
     </div>
+    <section class="flip-balance-card">
+      <div class="flip-balance-label">Account balance</div>
+      <div class="flip-balance-display">
+        <span class="fc-currency">£</span>
+        <div class="fc-digits" id="fcDigits"></div>
+      </div>
+    </section>
+
     <section class="analytics-chart-card">
       <div class="analytics-card-header">
         <h2 class="analytics-card-title">Commission trend</h2>
@@ -2006,6 +2092,60 @@ function showAnalytics() {
   try { renderAnalyticsDashboard(); } catch(e) { toast('Could not draw analytics: ' + (e.message || 'error')); }
 }
 
+const FLIP_BALANCE = 47291;
+
+function createFcTile(digit) {
+  const tile = document.createElement('div');
+  tile.className = 'fc-tile';
+  tile.dataset.current = digit;
+  tile.innerHTML =
+    '<div class="fc-face fc-face-top"><span>' + digit + '</span></div>' +
+    '<div class="fc-face fc-face-bot"><span>' + digit + '</span></div>' +
+    '<div class="fc-flap"><span>' + digit + '</span></div>' +
+    '<div class="fc-shine"></div>';
+  return tile;
+}
+
+function fcFlipTo(tile, newDigit) {
+  const cur = tile.dataset.current;
+  if (cur === String(newDigit)) return;
+  const flap = tile.querySelector('.fc-flap');
+  const flapSpan = flap.querySelector('span');
+  const botSpan = tile.querySelector('.fc-face-bot span');
+  const topSpan = tile.querySelector('.fc-face-top span');
+  flapSpan.textContent = cur;
+  botSpan.textContent = newDigit;
+  flap.classList.remove('fc-flipping');
+  void flap.offsetWidth;
+  flap.classList.add('fc-flipping');
+  setTimeout(() => {
+    topSpan.textContent = newDigit;
+    flapSpan.textContent = newDigit;
+    flap.classList.remove('fc-flipping');
+    tile.dataset.current = String(newDigit);
+  }, 300);
+}
+
+function initFlipBalance() {
+  const container = document.getElementById('fcDigits');
+  if (!container) return;
+  container.innerHTML = '';
+  const digits = String(FLIP_BALANCE).split('');
+  digits.forEach((d, i) => {
+    if (i === 2) {
+      const sep = document.createElement('span');
+      sep.className = 'fc-sep';
+      sep.textContent = ',';
+      container.appendChild(sep);
+    }
+    container.appendChild(createFcTile('0'));
+  });
+  const tiles = container.querySelectorAll('.fc-tile');
+  digits.forEach((d, i) => {
+    setTimeout(() => fcFlipTo(tiles[i], d), 500 + i * 160);
+  });
+}
+
 function catmullRomPath(pts) {
   if (pts.length < 2) return '';
   const d = [];
@@ -2131,6 +2271,7 @@ function renderAnalyticsDashboard() {
   });
 
   renderCallPerformance();
+  initFlipBalance();
 }
 
 function renderCallPerformance() {
