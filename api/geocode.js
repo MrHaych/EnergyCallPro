@@ -8,6 +8,7 @@ module.exports = async (req, res) => {
     return;
   }
   const key = process.env.GOOGLE_MAPS_API_KEY;
+  console.log('KEY:', key);
   if (!key) {
     res.status(500).json({ error: 'Missing GOOGLE_MAPS_API_KEY on server' });
     return;
